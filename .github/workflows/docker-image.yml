@@ -1,0 +1,35 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 设置 Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 登录到 Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}  # 使用 GitHub Secrets 中的 Docker Hub 用户名
+          password: ${{ secrets.DOCKERHUB_TOKEN }}    # 使用 GitHub Secrets 中的 Docker Hub 密码或令牌
+
+      # 构建并推送 Docker 镜像
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: |
+            sigma711/ubuntu-dev-arm64:24.04
+            sigma711/ubuntu-dev-amd64:24.04
+          platforms: linux/arm64,linux/amd64
